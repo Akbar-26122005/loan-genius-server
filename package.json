@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "less": "cat src/less/*.less > build/app.less.temp && lessc -x ./build/app.less.temp > ./build/css/app.css && rm -f build/app.less.temp",
+    "uglify": "cat src/js/lib/*.js src/js/*.js > build/app.js.temp && uglifyjs2 -o build/js/app.min.js build/app.js.temp && rm -f build/app.js.temp",
+    "jade": "jade --out build/ src/jade/index.jade",
+    "build": "npm run less && npm run uglify && npm run jade",
+    "start": "npm run build",
+    "watch": "supervisor --watch src--extensions less,js,jade --no-restart-on exit --exec npm -- run build"
   },
   "keywords": [],
   "author": "",
