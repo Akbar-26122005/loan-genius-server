@@ -2,6 +2,7 @@ const http = require('http')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const express = require('express')
+const config = require('../config/config');
 
 const app = express()
 const server = http.createServer(app)
@@ -20,11 +21,11 @@ app.use(cookieParser())
 app.use('/auth', Auth)
 
 app.get('/', async (req, res) => {
-    res.sendFile(__dirname + '/displays/welcomePage.html')
+    res.sendFile(__dirname + '/pages/welcomePage.html')
 })
 
-function startServer(port = null) {
-    port = port || 3000
+function startServer(port = config.port) {
+    port = port || 5000
     server.listen(port, () => console.log(`Server is running at http://localhost:${port}`))
 }
 
