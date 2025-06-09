@@ -1,14 +1,12 @@
 const router = require('express').Router()
-const session = 'session';
 const supabase = require('../../db/supabaseClient');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const config = require('../../config/config');
 
 const cookieOptions = {
     httpOnly: true
-    ,secure: config.NODE_ENV === 'production'
-    ,sameSite: config.NODE_ENV === 'production'
+    ,secure: config.node_env === 'production'
+    ,sameSite: config.node_env === 'production' ? 'none' : 'lax'
     ,maxAge: 24 * 60 * 60 * 1000
     ,path: '/'
 }
@@ -18,8 +16,12 @@ router.get('/check', async (req, res) => {
     try {
         const session = req.cookies.session
 
-        if (session)
-            return res.status(200).json({ isAuthenticated: false, message: 'The session does not exist' })
+        if (!session) {
+            return res.status(200).json({
+                isAuthenticated: false,
+                message: 'The session does not exist'
+            })
+        }
 
         const decoded = await jwt.verify(session, config.jwt_secret);
 
@@ -32,14 +34,26 @@ router.get('/check', async (req, res) => {
         if (error)
             throw new Error(error.message)
 
+        if (data.length === 0) {
+            res.clearCookie('session', cookieOptions)
+            return res.status(200).json({
+                isAuthenticated: false
+                ,message: 'The data will be deleted from the database'
+            })
+        }
+
         const user = data[0]
 
         return res.status(200).json({
             isAuthenticated: true
+            ,message: 'The user is logged in'
             ,user: {
                 id: user.id
                 ,email: user.email
-                ,name: user.name
+                ,phone_number: user.phone_number
+                ,first_name: user.first_name
+                ,last_name: user.last_name
+                ,middle_name: user.middle_name
             }
         })
     } catch (err) {
@@ -62,11 +76,7 @@ router.get('/log-out', async (req, res) => {
             })
         }
 
-        res.clearCookie(session, {
-            httpOnly: true
-            ,secure: config.NODE_ENV === 'production'
-            ,sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax'
-        })
+        res.clearCookie('session', cookieOptions)
 
         return res.status(200).json({
             success: true
@@ -83,13 +93,12 @@ router.get('/log-out', async (req, res) => {
 // Регистрация
 router.post('/sign-up', async (req, res) => {
     try {
-
-        const { email, password, name } = req.body;
+        const { email, phone_number, password, first_name, last_name, middle_name, birth_date } = req.body;
     
-        if (!email || !password || !name) {
+        if (!email || !phone_number || !password || !first_name || !last_name || !birth_date) {
             return res.status(400).json({
                 success: false
-                ,message: 'Email, password and username are required'
+                ,message: 'Email, user names and password are required'
             })
         }
     
@@ -111,8 +120,10 @@ router.post('/sign-up', async (req, res) => {
         const { data: existingUser, error: lookupError } = await supabase
             .from('users')
             .select('*')
-            .eq('email', email)
-            .limit(1)
+            .or('email.eq.email,phone_number.eq.phone', {
+                email: email
+                ,phone: phone_number
+            })
         
         if (lookupError) {
             return res.status(500).json({
@@ -130,14 +141,20 @@ router.post('/sign-up', async (req, res) => {
     
         const hashedPassword = await config.hashPassword(password)
     
-        const { data: user, error: createError} = await supabase
+        const { data: users, error: createError} = await supabase
             .from('users')
             .insert([{
                 email
+                ,phone_number: phone_number
                 ,password: hashedPassword
-                ,name
+                ,first_name: first_name
+                ,last_name: last_name
+                ,middle_name: middle_name
+                ,birth_date: birth_date
+                ,registration_date: new Date()
+                ,last_login: new Date()
             }])
-            .select('*')
+            .select()
         
         if (createError) {
             return res.status(500).json({
@@ -146,7 +163,7 @@ router.post('/sign-up', async (req, res) => {
             })
         }
     
-        const newUser = user[0]
+        const newUser = users[0]
     
         // Генерация jwt-токена
         const session = jwt.sign(
@@ -156,6 +173,19 @@ router.post('/sign-up', async (req, res) => {
         )
 
         res.cookie('session', session, cookieOptions)
+
+        return res.status(200).json({
+            success: true
+            ,message: 'Successful registration'
+            ,user: {
+                id: newUser.id
+                ,email: newUser.email
+                ,phone_number: newUser.phone_number
+                ,first_name: newUser.first_name
+                ,last_name: newUser.last_name
+                ,middle_name: newUser.middle_name
+            }
+        })
     } catch (err) {
         return res.status(500).json({
             success: false
@@ -167,20 +197,20 @@ router.post('/sign-up', async (req, res) => {
 // Вход
 router.post('/log-in', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { login, password } = req.body;
 
-        if (!email || !password) {
+        if (!login || !password) {
             return res.status(400).json({
                 success: false
-                ,message: 'Email and password required'
+                ,message: 'Login and password required'
             })
         }
 
         const { data: users, error } = await supabase
             .from('users')
             .select('*')
-            .eq('email', email)
-            .limit(1)
+
+        const user = users.find((user) => user.email === login || user.phone_number === login)
         
         if (error) {
             return res.status(500).json({
@@ -189,21 +219,31 @@ router.post('/log-in', async (req, res) => {
             })
         }
 
-        if (users.length === 0) {
+        if (user === null) {
             return res.status(401).json({
                 success: false
                 ,message: 'Invalid email or password'
             })
         }
 
-        const user = users[0]
-
-        const isPasswordValid = await verifyPassword(password, user.password)
+        const isPasswordValid = await config.verifyPassword(password, user.password)
 
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false
                 ,message: 'Invalid email or password'
+            })
+        }
+
+        const { data: updatedData, error: updatedError } = await supabase
+            .from('users')
+            .update({ last_login: new Date() })
+            .eq('id', user.id)
+        
+        if (updatedError) {
+            return res.status(500).json({
+                success: false
+                ,message: 'Database error'
             })
         }
 
@@ -222,8 +262,49 @@ router.post('/log-in', async (req, res) => {
             ,user: {
                 id: user.id
                 ,email: user.email
-                ,name: user.name
+                ,phone_number: user.phone_number
+                ,first_name: user.first_name
+                ,last_name: user.last_name
+                ,middle_name: user.middle_name
             }
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false
+            ,message: err.message
+        })
+    }
+})
+
+router.post('/update', async (req, res) => {
+    const { id, email, phone_number, first_name, last_name, middle_name } = req.body
+
+    try {
+        if (!id || !email || !phone_number || !first_name || !last_name || !middle_name) {
+            return res.status(400).json({
+                success: false
+                ,message: 'There is not enough data'
+            })
+        }
+
+        const { data, error } = await supabase
+            .from('users')
+            .update({
+                email
+                ,phone_number
+                ,first_name
+                ,last_name
+                ,middle_name
+            }).eq('id', id)
+            .select()
+        
+        if (error)
+            throw new Error('Database error')
+
+        return res.status(200).json({
+            success: true
+            ,message: 'The data was updated successfully'
+            ,user: data[0]
         })
     } catch (err) {
         return res.status(500).json({

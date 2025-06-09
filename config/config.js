@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 require('dotenv').config()
 
 module.exports = {
@@ -7,6 +8,7 @@ module.exports = {
         ,key: process.env.SUPABASE_PROJECT_KEY
     }
     ,jwt_secret: process.env.JWT_SECRET
+    ,node_env: process.env.NODE_ENV
     ,hashPassword: async (password) => {
         const salt = await bcrypt.genSalt(10)
         return await bcrypt.hash(password, salt)

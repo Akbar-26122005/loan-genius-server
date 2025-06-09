@@ -8,6 +8,9 @@ const app = express()
 const server = http.createServer(app)
 
 const Auth = require('./routes/auth')
+const Passport = require('./routes/passport')
+const Loans = require('./routes/loans')
+const Products = require('./routes/products')
 
 app.use(cors({
     origin: 'http://localhost:3000'
@@ -19,6 +22,9 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/auth', Auth)
+app.use('/passport', Passport)
+app.use('/loans', Loans)
+app.use('/products', Products)
 
 app.get('/', async (req, res) => {
     res.sendFile(__dirname + '/pages/welcomePage.html')
