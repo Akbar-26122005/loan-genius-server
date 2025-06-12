@@ -11,6 +11,7 @@ const Auth = require('./routes/auth')
 const Passport = require('./routes/passport')
 const Loans = require('./routes/loans')
 const Products = require('./routes/products')
+const Employee = require('./routes/employee')
 
 app.use(cors({
     origin: 'http://localhost:3000'
