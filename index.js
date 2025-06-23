@@ -1,3 +1,3 @@
 const startServer = require('./api/app')
 
-startServer(5000)
+startServer(5000);
