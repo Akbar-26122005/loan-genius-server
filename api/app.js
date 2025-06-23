@@ -15,7 +15,7 @@ const Employee = require('./routes/employee')
 const Applications = require('./routes/applications')
 
 app.use(cors({
-    origin: 'https://loan-genius.vercel.app'
+    origin: config.client_origin /* 'https://loan-genius.vercel.app' */
     ,credentials: true
     ,methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS ' ]
     ,allowedHeaders: [ 'Content-Type' ]
