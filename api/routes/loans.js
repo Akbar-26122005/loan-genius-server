@@ -83,8 +83,47 @@ router.get('/get-all', async (req, res) => {
 
         return res.status(200).json({
             success: true
-            ,message: ''
+            ,message: 'The data was successfully received'
             ,loans: data
+        })
+    } catch (err) {
+        return res.status(500).json({
+            success: false
+            ,message: err.message
+        })
+    }
+})
+
+router.post('/create', async (req, res) => {
+    const { application_id, final_amount, final_term, final_rate, disbursement_date, account_number } = req.body
+
+    try {
+        if (!application_id || !final_amount || !final_term || !final_rate || !disbursement_date || !account_number) {
+            return res.status(400).json({
+                success: false
+                ,message: 'disbursement_date'
+            })
+        }
+    
+        const { data, error } = await supabase
+            .from('loans')
+            .insert({
+                application_id
+                ,final_amount
+                ,final_term
+                ,final_rate
+                ,disbursement_date
+                ,account_number
+            })
+            .select()
+        
+        if (error)
+            throw new Error(`Database error: ${error.message}`)
+
+        return res.status(200).json({
+            success: true
+            ,message: 'The data was created successfully'
+            ,data: data
         })
     } catch (err) {
         return res.status(500).json({

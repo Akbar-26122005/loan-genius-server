@@ -12,9 +12,10 @@ const Passport = require('./routes/passport')
 const Loans = require('./routes/loans')
 const Products = require('./routes/products')
 const Employee = require('./routes/employee')
+const Applications = require('./routes/applications')
 
 app.use(cors({
-    origin: 'http://localhost:3000'
+    origin: config.client_origin
     ,credentials: true
     ,methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS ' ]
     ,allowedHeaders: [ 'Content-Type' ]
@@ -26,6 +27,7 @@ app.use('/auth', Auth)
 app.use('/passport', Passport)
 app.use('/loans', Loans)
 app.use('/products', Products)
+app.use('/applications', Applications)
 
 app.get('/', async (req, res) => {
     res.sendFile(__dirname + '/pages/welcomePage.html')

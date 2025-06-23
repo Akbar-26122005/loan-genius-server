@@ -3,6 +3,7 @@ require('dotenv').config()
 
 module.exports = {
     port: process.env.SERVER_DEFAULT_PORT || 5000
+    ,client_origin: process.env.CLIENT_ORIGIN
     ,supabase: {
         url: process.env.SUPABASE_PROJECT_URL
         ,key: process.env.SUPABASE_PROJECT_KEY

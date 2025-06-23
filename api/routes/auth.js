@@ -7,7 +7,7 @@ const cookieOptions = {
     httpOnly: true
     ,secure: config.node_env === 'production'
     ,sameSite: config.node_env === 'production' ? 'none' : 'lax'
-    ,maxAge: 24 * 60 * 60 * 1000
+    ,maxAge: 2 * 60 * 60 * 1000
     ,path: '/'
 }
 
@@ -42,6 +42,8 @@ router.get('/check', async (req, res) => {
             })
         }
 
+        res.cookie('session', session, cookieOptions)
+
         const user = data[0]
 
         return res.status(200).json({
@@ -54,6 +56,7 @@ router.get('/check', async (req, res) => {
                 ,first_name: user.first_name
                 ,last_name: user.last_name
                 ,middle_name: user.middle_name
+                ,is_staff: user.is_staff
             }
         })
     } catch (err) {
@@ -153,6 +156,7 @@ router.post('/sign-up', async (req, res) => {
                 ,birth_date: birth_date
                 ,registration_date: new Date()
                 ,last_login: new Date()
+                ,is_staff: false
             }])
             .select()
         
@@ -184,6 +188,7 @@ router.post('/sign-up', async (req, res) => {
                 ,first_name: newUser.first_name
                 ,last_name: newUser.last_name
                 ,middle_name: newUser.middle_name
+                ,is_staff: newUser.is_staff
             }
         })
     } catch (err) {
@@ -215,7 +220,7 @@ router.post('/log-in', async (req, res) => {
         if (error) {
             return res.status(500).json({
                 success: false
-                ,message: 'Database error'
+                ,message: `Database error: ${error.message}`
             })
         }
 
@@ -266,6 +271,7 @@ router.post('/log-in', async (req, res) => {
                 ,first_name: user.first_name
                 ,last_name: user.last_name
                 ,middle_name: user.middle_name
+                ,is_staff: user.is_staff
             }
         })
     } catch (err) {
