@@ -1,3 +1,4 @@
-const startServer = require('./api/app')
+const {startServer, app} = require('./api/app')
 
 startServer(5000);
+module.exports = app

@@ -38,4 +38,4 @@ function startServer(port = config.port) {
     server.listen(port, () => console.log(`Server is running at http://localhost:${port}`))
 }
 
-module.exports = startServer
+module.exports = {startServer, app}
