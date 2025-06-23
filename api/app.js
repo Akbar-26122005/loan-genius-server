@@ -5,7 +5,7 @@ const express = require('express')
 const config = require('../config/config');
 
 const app = express()
-const server = http.createServer(app)
+// const server = http.createServer(app)
 
 const Auth = require('./routes/auth')
 const Passport = require('./routes/passport')
@@ -35,7 +35,7 @@ app.get('/', async (req, res) => {
 
 function startServer(port = config.port) {
     port = port || 5000
-    server.listen(port, () => console.log(`Server is running at http://localhost:${port}`))
+    app.listen(port, () => console.log(`Server is running at http://localhost:${port}`))
 }
 
 module.exports = startServer
