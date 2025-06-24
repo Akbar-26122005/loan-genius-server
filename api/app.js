@@ -13,9 +13,10 @@ const Loans = require('./routes/loans')
 const Products = require('./routes/products')
 const Employee = require('./routes/employee')
 const Applications = require('./routes/applications')
+const Contracts = require('./routes/contracts')
 
 app.use(cors({
-    origin: 'https://loan-genius.vercel.app'
+    origin: config.client_origin || 'https://loan-genius.vercel.app'
     ,credentials: true
     ,methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS ' ]
     ,allowedHeaders: [ 'Content-Type' ]
@@ -28,6 +29,7 @@ app.use('/passport', Passport)
 app.use('/loans', Loans)
 app.use('/products', Products)
 app.use('/applications', Applications)
+app.use('/contracts', Contracts)
 
 app.get('/', async (req, res) => {
     res.sendFile(__dirname + '/pages/welcomePage.html')

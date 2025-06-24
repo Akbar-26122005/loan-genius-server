@@ -116,6 +116,7 @@ router.post('/create', async (req, res) => {
                 ,account_number
             })
             .select()
+            .single()
         
         if (error)
             throw new Error(`Database error: ${error.message}`)
