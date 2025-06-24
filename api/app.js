@@ -16,7 +16,7 @@ const Applications = require('./routes/applications')
 const Contracts = require('./routes/contracts')
 
 app.use(cors({
-    origin: config.client_origin || 'https://loan-genius.vercel.app'
+    origin: 'https://loan-genius.vercel.app'
     ,credentials: true
     ,methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS ' ]
     ,allowedHeaders: [ 'Content-Type' ]
