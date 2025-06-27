@@ -2,12 +2,13 @@ const router = require('express').Router()
 const supabase = require('../../db/supabaseClient');
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config');
+const { sendMessage } = require('../../config/notifications');
 
 const cookieOptions = {
     httpOnly: true
     ,secure: config.node_env === 'production'
     ,sameSite: config.node_env === 'production' ? 'none' : 'lax'
-    ,maxAge: 2 * 60 * 60 * 1000
+    ,maxAge: 3 * 60 * 60 * 1000 // 3 hours
     ,path: '/'
 }
 
@@ -27,9 +28,23 @@ router.get('/check', async (req, res) => {
 
         const { data, error } = await supabase
             .from('users')
-            .select('*')
+            .select(`
+                *,
+                passports (*),
+                applications (
+                    *,
+                    credit_products: product_id (*),
+                    loans (
+                        *,
+                        contracts (
+                            *,
+                            payments (*)
+                        )
+                    )
+                )
+            `)
             .eq('id', decoded.userId)
-            .limit(1)
+            .single()
         
         if (error)
             throw new Error(error.message)
@@ -44,20 +59,37 @@ router.get('/check', async (req, res) => {
 
         res.cookie('session', session, cookieOptions)
 
-        const user = data[0]
+        let info = undefined
+        if (data.is_staff) {
+            const { data: employeeData, error: employeeError } = await supabase
+            .from('users')
+            .select(`
+                *,
+                passports (*),
+                applications (
+                    *,
+                    credit_products: product_id (*),
+                    loans (
+                        *,
+                        contracts (
+                            *,
+                            payments (*)
+                        )
+                    )
+                )
+            `)
+
+            info = employeeData
+        }
 
         return res.status(200).json({
             isAuthenticated: true
             ,message: 'The user is logged in'
             ,user: {
-                id: user.id
-                ,email: user.email
-                ,phone_number: user.phone_number
-                ,first_name: user.first_name
-                ,last_name: user.last_name
-                ,middle_name: user.middle_name
-                ,is_staff: user.is_staff
+                ...data
+                ,password: undefined
             }
+            ,res: info
         })
     } catch (err) {
         return res.status(500).json({

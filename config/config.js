@@ -15,4 +15,6 @@ module.exports = {
         return await bcrypt.hash(password, salt)
     }
     ,verifyPassword: async (password, storedHash) => await bcrypt.compare(password, storedHash)
+    ,gmailUser: process.env.GMAIL_USER
+    ,gmailPass: process.env.GMAIL_PASS
 }
