@@ -19,7 +19,7 @@
   "homepage": "https://github.com/Akbar-26122005/loan-genius-server#readme",
   "description": "",
   "dependencies": {
-    "@supabase/supabase-js": "^2.50.1",
+    "@supabase/supabase-js": "^2.50.2",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
