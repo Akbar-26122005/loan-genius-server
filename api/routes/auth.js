@@ -92,6 +92,7 @@ router.get('/check', async (req, res) => {
             ,res: info
         })
     } catch (err) {
+        console.error(err.message)
         return res.status(500).json({
             isAuthenticated: false
             ,message: err.message
@@ -118,6 +119,7 @@ router.get('/log-out', async (req, res) => {
             ,message: 'Successfully logged out'
         })
     } catch (err) {
+        console.error(err.message)
         return res.status(500).json({
             success: false
             ,message: 'Internal server error during logout'
@@ -224,6 +226,7 @@ router.post('/sign-up', async (req, res) => {
             }
         })
     } catch (err) {
+        console.error(err.message)
         return res.status(500).json({
             success: false
             ,message: err.message
@@ -293,6 +296,9 @@ router.post('/log-in', async (req, res) => {
 
         res.cookie('session', session, cookieOptions)
 
+        const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`
+        console.log(fullUrl)
+
         return res.status(200).json({
             success: true
             ,message: 'Login successful'
@@ -307,6 +313,7 @@ router.post('/log-in', async (req, res) => {
             }
         })
     } catch (err) {
+        console.error(err.message)
         return res.status(500).json({
             success: false
             ,message: err.message
@@ -345,6 +352,7 @@ router.post('/update', async (req, res) => {
             ,user: data[0]
         })
     } catch (err) {
+        console.error(err.message)
         return res.status(500).json({
             success: false
             ,message: err.message
