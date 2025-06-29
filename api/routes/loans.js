@@ -173,7 +173,6 @@ router.post('/create', async (req, res) => {
         const paymentSchedule = []
         let remainingBalance = application.amount
 
-        console.log(`Цикл for от ${0} до ${applData.term}`)
         for (let i = 0; i < applData.term; i++) {
             const paymentDate = new Date(year, month + i, day)
             const interestAmount = remainingBalance * monthlyRate

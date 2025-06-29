@@ -14,6 +14,7 @@ const Products = require('./routes/products')
 const Employee = require('./routes/employee')
 const Applications = require('./routes/applications')
 const Contracts = require('./routes/contracts')
+const Payments = require('./routes/payments')
 
 const client_origin = config.client_origin
 console.log(client_origin)
@@ -33,6 +34,7 @@ app.use('/loans', Loans)
 app.use('/products', Products)
 app.use('/applications', Applications)
 app.use('/contracts', Contracts)
+app.use('/payments', Payments)
 
 app.get('/', async (req, res) => {
     res.sendFile(__dirname + '/pages/welcomePage.html')
