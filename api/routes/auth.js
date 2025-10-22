@@ -6,7 +6,7 @@ const { sendMessage } = require('../../config/notifications');
 
 const cookieOptions = {
     httpOnly: true
-    ,secure: config.node_env === 'production'
+    ,secure: true
     ,sameSite: 'none'
     ,maxAge: 3 * 60 * 60 * 1000 // 3 hours
     ,path: '/'
@@ -249,8 +249,6 @@ router.post('/log-in', async (req, res) => {
         const { data: users, error } = await supabase
             .from('users')
             .select('*')
-
-        const user = users.find((user) => user.email === login || user.phone_number === login)
         
         if (error) {
             return res.status(500).json({
@@ -258,6 +256,8 @@ router.post('/log-in', async (req, res) => {
                 ,message: `Database error: ${error.message}`
             })
         }
+
+        const user = users.find((user) => user.email === login || user.phone_number === login)
 
         if (user === null) {
             return res.status(401).json({

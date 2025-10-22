@@ -103,6 +103,9 @@ router.post('/create', async (req, res) => {
     const day = today.getDate() > 28 ? 1 : today.getDate()
 
     try {
+        // Начало транзакции
+        await supabase.rpc('begin')
+
         // change the status in applications
         const { data: applData, error: applError } = await supabase
             .from('applications')
@@ -209,6 +212,7 @@ router.post('/create', async (req, res) => {
         })
     } catch (err) {
         console.log('Возникла ошибка:', err.message)
+        await supabase.rpc('rollback')
         return res.status(500).json({
             success: false
             ,message: err.message
