@@ -114,9 +114,8 @@ router.get('/log-out', async (req, res) => {
         
         res.clearCookie('session')
 
-        res.cookie('session', '', { 
-            ...cookieOptions
-            ,maxAge: 0
+        res.cookie('session', '', {
+            maxAge: 0
             ,expires: new Date(0)
         });
 
