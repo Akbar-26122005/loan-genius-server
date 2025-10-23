@@ -112,12 +112,7 @@ router.get('/log-out', async (req, res) => {
             })
         }
         
-        res.clearCookie('session')
-
-        res.cookie('session', '', {
-            maxAge: 0
-            ,expires: new Date(0)
-        });
+        res.clearCookie('session', cookieOptions)
 
         return res.status(200).json({
             success: true
