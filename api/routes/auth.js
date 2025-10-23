@@ -7,7 +7,7 @@ const { sendMessage } = require('../../config/notifications');
 const cookieOptions = {
     httpOnly: true
     ,secure: true
-    ,sameSite: 'none'
+    ,sameSite: 'lax'
     ,maxAge: 3 * 60 * 60 * 1000 // 3 hours
     ,path: '/'
 }
@@ -111,12 +111,11 @@ router.get('/log-out', async (req, res) => {
                 message: 'No active session found'
             })
         }
-
-        res.cookie('session', null, {
+        
+        res.clearCookie('session', {
             ...cookieOptions
             ,maxAge: 0
         })
-        res.clearCookie('session', cookieOptions)
 
         return res.status(200).json({
             success: true
