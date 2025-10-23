@@ -7,7 +7,7 @@ const { sendMessage } = require('../../config/notifications');
 const cookieOptions = {
     httpOnly: true
     ,secure: true
-    ,sameSite: 'lax'
+    ,sameSite: 'none'
     ,maxAge: 3 * 60 * 60 * 1000 // 3 hours
     ,path: '/'
 }
