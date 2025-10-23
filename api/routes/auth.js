@@ -131,7 +131,7 @@ router.get('/log-out', async (req, res) => {
         console.error(err.message)
         return res.status(500).json({
             success: false
-            ,message: 'Internal server error during logout'
+            ,message: 'Internal server error during logout: ' + err.message
         })
     }
 })
