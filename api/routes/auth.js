@@ -8,9 +8,10 @@ const cookieOptions = {
     httpOnly: true
     ,secure: true
     ,sameSite: 'none'
-    ,maxAge: 3 * 60 * 60 * 1000 // 3 hours
     ,path: '/'
 }
+
+const cookieMaxAge = maxAge: 3 * 60 * 60 * 1000 // 3 hours
 
 // Проверка авторизованности пользователя
 router.get('/check', async (req, res) => {
@@ -57,7 +58,10 @@ router.get('/check', async (req, res) => {
             })
         }
 
-        res.cookie('session', session, cookieOptions)
+        res.cookie('session', session, {
+            ...cookieOptions
+            ,cookieMaxAge
+        })
 
         let info = undefined
         if (data.is_staff) {
@@ -210,7 +214,10 @@ router.post('/sign-up', async (req, res) => {
             ,{ expiresIn: '24h' }
         )
 
-        res.cookie('session', session, cookieOptions)
+        res.cookie('session', session, {
+            ...cookieOptions
+            ,cookieMaxAge
+        })
 
         return res.status(200).json({
             success: true
@@ -294,7 +301,10 @@ router.post('/log-in', async (req, res) => {
             ,{ expiresIn: '24h' }
         )
 
-        res.cookie('session', session, cookieOptions)
+        res.cookie('session', session, {
+            ...cookieOptions
+            ,cookieMaxAge
+        })
 
         const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`
         console.log(fullUrl)
